@@ -6,7 +6,8 @@ Site vitrine statique : une page avec ancres, une 404.
 Pas de backend, pas de base de données, pas de cookie.
 
 **Stack** — [Astro 6](https://astro.build) · [Tailwind CSS 4](https://tailwindcss.com) ·
-TypeScript strict · polices auto-hébergées · déployable sur Vercel ou Cloudflare Pages.
+TypeScript strict · polices auto-hébergées · déployable sur Cloudflare Pages, Vercel
+ou Azure Static Web Apps.
 
 ---
 
@@ -18,13 +19,18 @@ npm run assets   # génère polices, favicon et image OG (à faire une fois)
 npm run dev      # http://localhost:4321
 ```
 
-| Commande            | Ce que ça fait                                                  |
-| ------------------- | --------------------------------------------------------------- |
-| `npm run dev`       | Serveur de dev avec rechargement à chaud                          |
-| `npm run build`     | Assets + vérification TypeScript + build statique dans `dist/`    |
-| `npm run preview`   | Sert le `dist/` en local, comme en production                     |
-| `npm run check`     | Vérification TypeScript / Astro seule                             |
-| `npm run assets`    | Régénère `public/fonts`, `favicon.svg`, `og.png`, icônes          |
+| Commande              | Ce que ça fait                                                  |
+| --------------------- | ----------------------------------------------------------------- |
+| `npm run dev`         | Serveur de dev avec rechargement à chaud                            |
+| `npm run build`       | Vérification TypeScript puis build statique dans `dist/`            |
+| `npm run preview`     | Sert le `dist/` en local, comme en production                       |
+| `npm run check`       | Vérification TypeScript / Astro seule                               |
+| `npm run assets`      | Régénère `public/fonts`, `favicon.svg`, `og.png`, icônes            |
+| `npm run build:nocheck` | Build sans la vérification — dépannage uniquement                 |
+
+`npm run assets` n'est **pas** dans le build : les fichiers générés sont versionnés
+dans `public/`. Relance-le seulement quand tu changes le slogan, les couleurs ou
+les polices, puis commit le résultat.
 
 ---
 
@@ -74,25 +80,49 @@ Ajoute une entrée, elle devient utilisable via `icon: 'nom'` dans `services.ts`
 
 ## Formulaire de contact
 
-Le formulaire fonctionne **sans backend**, via [Formspree](https://formspree.io).
+Le formulaire fonctionne **sans backend**, via [Formspark](https://formspark.io).
+Modèle de paiement unique : 250 envois offerts qui n'expirent pas, puis 25 $ une
+seule fois pour 50 000 envois. Pas d'abonnement.
 
-1. Crée un formulaire sur Formspree, récupère l'URL (`https://formspree.io/f/xxxxxxxx`)
+1. Crée un formulaire sur Formspark, récupère l'ID et donc l'URL
+   (`https://submit-form.com/xxxxxxxx`)
 2. Renseigne la variable d'environnement :
 
 ```bash
 cp .env.example .env
 # puis dans .env :
-PUBLIC_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
+PUBLIC_FORMSPARK_ENDPOINT=https://submit-form.com/xxxxxxxx
 ```
 
 3. Déclare la même variable chez ton hébergeur (Vercel ou Cloudflare Pages).
 
 **Repli automatique** : si la variable est absente ou vide, le formulaire bascule
 tout seul sur un envoi `mailto:` vers `prodbydxt@gmail.com`. Le site ne casse jamais,
-mais l'expérience est meilleure avec Formspree (envoi sans quitter la page, puis
+mais l'expérience est meilleure avec Formspark (envoi sans quitter la page, puis
 retour sur le site avec un message de confirmation).
 
-Un champ piège (`_gotcha`) filtre les robots côté Formspree.
+### Champs réservés utilisés
+
+| Champ             | Rôle                                                              |
+| ----------------- | ----------------------------------------------------------------- |
+| `_email.subject`  | Objet du mail que tu reçois                                        |
+| `_redirect`       | Retour sur le site avec `?envoye=1` → bandeau de confirmation      |
+| `_append=false`   | **Important** : empêche Formspark de recopier le contenu du message dans l'URL de retour |
+| `_honeypot`       | Champ piège invisible : les robots le remplissent, Formspark jette |
+
+Le champ `email` du formulaire sert automatiquement de `reply-to` : tu réponds
+directement depuis ta boîte mail, ça part chez la personne.
+
+> `_append=false` n'est pas un détail. Sans lui, le nom, l'email et le message
+> du visiteur se retrouvent en clair dans la barre d'adresse et dans l'historique
+> du navigateur.
+
+### Changer de prestataire
+
+L'endpoint est dans une variable d'environnement, mais les champs réservés sont
+propres à chaque service. Pour passer à un autre (Formspree, Web3Forms…), il faut
+aussi adapter les quatre `<input type="hidden">` de
+`src/components/sections/Contact.astro`.
 
 ---
 
@@ -100,7 +130,7 @@ Un champ piège (`_gotcha`) filtre les robots côté Formspree.
 
 | Variable                    | Obligatoire | Rôle                                                       |
 | --------------------------- | ----------- | ---------------------------------------------------------- |
-| `PUBLIC_FORMSPREE_ENDPOINT` | non         | Endpoint du formulaire. Vide → repli `mailto:`              |
+| `PUBLIC_FORMSPARK_ENDPOINT` | non         | Endpoint du formulaire. Vide → repli `mailto:`              |
 | `SITE_URL`                  | recommandé  | URL de prod : canonical, Open Graph, sitemap, robots.txt    |
 
 Sans `SITE_URL`, la valeur par défaut est `https://prodbydxt.com`
@@ -110,7 +140,55 @@ Sans `SITE_URL`, la valeur par défaut est `https://prodbydxt.com`
 
 ## Déploiement
 
-### Vercel
+### Cloudflare — recommandé
+
+Gratuit, usage commercial autorisé, pas de plafond de bande passante qui coupe le
+site.
+
+Cloudflare propose deux tunnels pour un site statique. Celui du dépôt est **Workers
+static assets** (le flux par défaut aujourd'hui), configuré par `wrangler.jsonc` :
+pas de `main`, donc aucun code serveur n'est exécuté — Cloudflare sert les fichiers
+de `dist/` depuis son CDN. Le `public/_headers` est lu dans les deux cas.
+
+1. Pousse le dépôt sur GitHub / GitLab.
+2. Dashboard Cloudflare → **Workers & Pages → Create → Connect to Git**.
+3. Commandes (déjà bonnes par défaut) :
+   - Build command : `npm run build`
+   - Deploy command : `npx wrangler deploy`
+4. **Advanced settings → Build variables** : `PUBLIC_FORMSPARK_ENDPOINT` et
+   `SITE_URL`. Attention, ce sont bien des variables de **build**, pas des
+   variables d'exécution : le site est statique, tout est figé au moment du build.
+5. Laisse **Protect with Cloudflare Access** désactivé (ça mettrait le site derrière
+   une authentification).
+6. **Deploy**, puis **Custom domains** pour brancher le domaine.
+
+<details>
+<summary>Ancien tunnel Pages (toujours fonctionnel)</summary>
+
+1. Pousse le dépôt sur GitHub / GitLab.
+2. Sur le dashboard Cloudflare → **Workers & Pages → Create → Pages → Connect to Git**.
+3. Réglages de build — le preset **Astro** remplit déjà tout correctement :
+   - Build command : `npm run build`
+   - Build output directory : `dist`
+   - Version de Node : rien à faire, le fichier `.nvmrc` à la racine impose 22.16.0.
+     (Sans lui, un projet sur l'ancien système de build Cloudflare partirait sur
+     Node 18 et le build échouerait : Astro 6 exige Node ≥ 22.12.)
+4. **Settings → Environment variables** : `PUBLIC_FORMSPARK_ENDPOINT` et `SITE_URL`.
+5. **Save and Deploy**, puis **Custom domains** pour le domaine.
+
+</details>
+
+Dans les deux cas, `public/_headers` applique les en-têtes de sécurité et le cache
+d'un an sur `/_astro/*` et `/fonts/*`.
+
+### Vercel — attention au plan
+
+Techniquement parfait, mais **le plan Hobby gratuit interdit l'usage commercial**.
+Les [fair use guidelines](https://vercel.com/docs/limits/fair-use-guidelines) citent
+explicitement « advertising the sale of a product or service » : un site qui vend
+des prestations de dev tombe dedans. Il faut donc le plan **Pro à 20 $/mois**.
+
+Si tu y vas quand même :
 
 1. Pousse le dépôt sur GitHub / GitLab.
 2. Sur [vercel.com](https://vercel.com) → **Add New… → Project** → importe le dépôt.
@@ -118,26 +196,28 @@ Sans `SITE_URL`, la valeur par défaut est `https://prodbydxt.com`
    - Framework Preset : **Astro**
    - Build Command : `npm run build`
    - Output Directory : `dist`
-4. **Settings → Environment Variables** : ajoute `PUBLIC_FORMSPREE_ENDPOINT` et
+4. **Settings → Environment Variables** : ajoute `PUBLIC_FORMSPARK_ENDPOINT` et
    `SITE_URL` (ex. `https://prodbydxt.com`) pour *Production*, *Preview* et *Development*.
 5. **Deploy**. Puis **Settings → Domains** pour brancher le nom de domaine.
 
 Le fichier `vercel.json` est déjà là : URL sans `.html`, sans slash final, en-têtes de
-sécurité et cache d'un an sur `/_astro/*` et `/fonts/*`.
+sécurité et cache d'un an.
 
-### Cloudflare Pages
+### Azure Static Web Apps — possible
 
-1. Pousse le dépôt sur GitHub / GitLab.
-2. Sur le dashboard Cloudflare → **Workers & Pages → Create → Pages → Connect to Git**.
-3. Réglages de build :
-   - Framework preset : **Astro**
-   - Build command : `npm run build`
-   - Build output directory : `dist`
-   - Node version : **22.12 ou plus** (variable `NODE_VERSION = 22`)
-4. **Settings → Environment variables** : `PUBLIC_FORMSPREE_ENDPOINT` et `SITE_URL`.
-5. **Save and Deploy**, puis **Custom domains** pour le domaine.
+Gratuit, 100 Go/mois, 2 domaines perso, SSL inclus. Ça marche, mais la doc Azure
+prévient : au-delà du quota, « we will not be able to serve your site » — le site
+coupe au lieu d'être facturé. À 270 Ko la page ça laisse environ 370 000 vues, donc
+le risque est faible, mais il existe.
 
-Le fichier `public/_headers` applique les mêmes en-têtes de sécurité et de cache.
+Pertinent surtout si tu es déjà dans l'écosystème Azure ou si un client l'impose.
+Il faut alors ajouter un `staticwebapp.config.json` (en-têtes + route 404) et un
+workflow GitHub Actions — ni l'un ni l'autre n'est dans le dépôt pour l'instant.
+
+**Le conteneur (Azure Container Apps, App Service) : à éviter.** Le site est 100 %
+statique. Un conteneur ajoute un registre d'images à payer et un serveur web à faire
+tourner en continu pour servir des fichiers figés. Plus cher et plus lent qu'un CDN,
+sans aucun gain.
 
 ### Après le premier déploiement
 
@@ -175,7 +255,7 @@ Le jour où tu as ton statut :
 ## Choix techniques
 
 **Zéro JS superflu.** Deux scripts inline, 3 lignes chacun : fermer le menu mobile
-après un clic, et afficher la confirmation au retour de Formspree. Tout le reste est
+après un clic, et afficher la confirmation au retour de Formspark. Tout le reste est
 du HTML et du CSS. Le menu mobile est un `<details>` natif, donc accessible au clavier
 sans une ligne de JavaScript.
 

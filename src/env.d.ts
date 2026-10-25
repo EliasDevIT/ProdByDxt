@@ -3,10 +3,10 @@
 
 interface ImportMetaEnv {
   /**
-   * Endpoint Formspree complet, ex. https://formspree.io/f/xxxxxxxx
+   * Endpoint Formspark complet, ex. https://submit-form.com/xxxxxxxx
    * Laisser vide -> le formulaire bascule automatiquement sur un fallback mailto.
    */
-  readonly PUBLIC_FORMSPREE_ENDPOINT?: string;
+  readonly PUBLIC_FORMSPARK_ENDPOINT?: string;
 }
 
 interface ImportMeta {

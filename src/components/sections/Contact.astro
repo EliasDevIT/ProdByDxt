@@ -5,14 +5,22 @@ import { site } from '../../data/site';
 import { contactCopy, fields, needOptions } from '../../data/contact';
 
 /**
- * Formspree si la variable d'env est renseignée, sinon repli automatique sur
+ * Formspark si la variable d'env est renseignée, sinon repli automatique sur
  * un envoi mailto (le formulaire reste fonctionnel sans aucun backend).
+ * Endpoint attendu : https://submit-form.com/<id-du-formulaire>
  */
-const endpoint = (import.meta.env.PUBLIC_FORMSPREE_ENDPOINT ?? '').trim();
-const usesFormspree = endpoint.length > 0;
+const endpoint = (import.meta.env.PUBLIC_FORMSPARK_ENDPOINT ?? '').trim();
+const usesFormspark = endpoint.length > 0;
 
-const action = usesFormspree ? endpoint : `mailto:${site.contact.email}`;
-const nextUrl = new URL('/?envoye=1#contact', Astro.site).href;
+const action = usesFormspark ? endpoint : `mailto:${site.contact.email}`;
+
+/**
+ * Formspark exige une URL absolue pour `_redirect`. En dev on vise le serveur
+ * local, sinon tester le formulaire renverrait vers le domaine de production —
+ * qui n'est pas forcément en ligne. Au build, c'est toujours le vrai domaine.
+ */
+const redirectBase = import.meta.env.DEV ? Astro.url.origin : Astro.site;
+const redirectUrl = new URL('/?envoye=1#contact', redirectBase).href;
 
 const inputClass =
   'w-full border-b border-line-strong bg-transparent py-3 text-base text-bone transition-colors placeholder:text-ash hover:border-ash focus:border-gold focus:outline-none';
@@ -23,7 +31,7 @@ const labelClass =
 <Section id="contact" label={contactCopy.label} title={contactCopy.title} intro={contactCopy.intro}>
   <div class="grid grid-cols-1 gap-16 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-20">
     <div class="reveal">
-      {/* Confirmation après retour de Formspree (?envoye=1) */}
+      {/* Confirmation après retour de Formspark (?envoye=1) */}
       <div
         id="confirmation"
         hidden
@@ -39,14 +47,24 @@ const labelClass =
       <form
         action={action}
         method="post"
-        {...usesFormspree ? {} : { enctype: 'text/plain' }}
+        {...usesFormspark ? {} : { enctype: 'text/plain' }}
         class="grid grid-cols-1 gap-9 sm:grid-cols-2"
       >
         {
-          usesFormspree && (
+          usesFormspark && (
             <>
-              <input type="hidden" name="_subject" value="Nouveau message depuis prodbydxt" />
-              <input type="hidden" name="_next" value={nextUrl} />
+              <input
+                type="hidden"
+                name="_email.subject"
+                value="Nouveau message depuis prodbydxt.com"
+              />
+              <input type="hidden" name="_redirect" value={redirectUrl} />
+              {/*
+                Sans ça, Formspark recopie tout le contenu du formulaire dans
+                l'URL de retour : nom, email et message se retrouveraient en
+                clair dans la barre d'adresse et dans l'historique.
+              */}
+              <input type="hidden" name="_append" value="false" />
             </>
           )
         }
@@ -55,7 +73,7 @@ const labelClass =
         <p class="hidden" aria-hidden="true">
           <label>
             Ne remplis pas ce champ
-            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+            <input type="checkbox" name="_honeypot" tabindex="-1" autocomplete="off" />
           </label>
         </p>
 
@@ -139,7 +157,7 @@ const labelClass =
           <p class="text-xs leading-relaxed text-ash">
             {contactCopy.note}
             {
-              !usesFormspree && (
+              !usesFormspark && (
                 <>
                   <br />
                   Ce formulaire ouvre ton application mail.
@@ -189,7 +207,7 @@ const labelClass =
 </Section>
 
 <script>
-  // Affiche la confirmation au retour de Formspree (?envoye=1).
+  // Affiche la confirmation au retour de Formspark (?envoye=1).
   if (new URLSearchParams(window.location.search).has('envoye')) {
     document.getElementById('confirmation')?.removeAttribute('hidden');
   }

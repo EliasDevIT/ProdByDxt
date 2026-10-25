@@ -1,0 +1,13 @@
+{
+  // Déploiement du site statique sur Cloudflare Workers (static assets).
+  // Aucun code serveur : Cloudflare sert directement les fichiers de `dist/`,
+  // sans jamais exécuter de Worker. C'est pour ça qu'il n'y a pas de `main`.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "prodbydxt",
+  "compatibility_date": "2026-10-25",
+  "assets": {
+    "directory": "./dist",
+    // Une URL inconnue renvoie dist/404.html avec un vrai code HTTP 404.
+    "not_found_handling": "404-page"
+  }
+}
