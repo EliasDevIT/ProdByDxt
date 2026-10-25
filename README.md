@@ -228,5 +228,3 @@ src/
 public/                  polices, favicon, og.png, _headers, manifest
 scripts/                 generate-assets.mjs
 ```
-#   P r o d B y D x t  
- 
