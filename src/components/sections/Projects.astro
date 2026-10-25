@@ -1,0 +1,70 @@
+---
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import { projects, projectsIntro } from '../../data/projects';
+---
+
+<Section id="projets" label="Projets" title="Les réalisations." intro={projectsIntro}>
+  <ul class="reveal grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      projects.map((project) => (
+        <li>
+          {project.status === 'soon' ? (
+            <article
+              class="flex aspect-4/3 flex-col items-center justify-center border border-dashed border-line px-6 text-center"
+              aria-label={`${project.title} — ${project.category}`}
+            >
+              <span
+                aria-hidden="true"
+                class="flex h-11 w-11 items-center justify-center rounded-full border border-line-strong"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-gold-deep" />
+              </span>
+              <p class="mt-6 font-mono text-[0.68rem] font-medium uppercase tracking-label text-ash">
+                {project.title}
+              </p>
+              <p class="mt-3 text-sm text-ash">{project.category}</p>
+            </article>
+          ) : (
+            <article class="group h-full border border-line transition-colors duration-300 hover:border-line-strong">
+              <a
+                href={project.url ?? '#projets'}
+                {...(project.url ? { target: '_blank', rel: 'noopener' } : {})}
+                class="flex h-full flex-col"
+              >
+                <div class="aspect-4/3 overflow-hidden bg-ink-raised">
+                  {project.image && (
+                    <img
+                      src={project.image.src}
+                      alt={project.image.alt}
+                      width={project.image.width}
+                      height={project.image.height}
+                      loading="lazy"
+                      decoding="async"
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  )}
+                </div>
+                <div class="flex flex-1 items-end justify-between gap-4 p-6">
+                  <div>
+                    <p class="font-mono text-[0.62rem] font-medium uppercase tracking-label text-gold">
+                      {project.category}
+                      {project.year && ` · ${project.year}`}
+                    </p>
+                    <h3 class="mt-3 text-lg font-medium tracking-tight text-bone">
+                      {project.title}
+                    </h3>
+                  </div>
+                  <Icon
+                    name="arrow"
+                    class="h-4 w-4 shrink-0 text-ash transition-all duration-300 group-hover:translate-x-1 group-hover:text-gold"
+                  />
+                </div>
+              </a>
+            </article>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</Section>

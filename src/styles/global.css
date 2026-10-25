@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   POLICES AUTO-HÉBERGÉES
+   Les .woff2 sont copiés depuis @fontsource vers /public/fonts par le script
+   `npm run assets`. Sous-ensemble latin uniquement (suffisant pour le français).
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 100 900; /* fonte variable : couvre 300 / 500 / 800 */
+  font-display: swap;
+  src: url('/fonts/inter-tight-latin-wght.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ==========================================================================
+   TOKENS — identité visuelle Prod by Dxt
+   En Tailwind 4, ce bloc `@theme` EST l'équivalent de `theme.extend` :
+   il étend le thème par défaut et génère les utilitaires (bg-ink, text-gold…).
+   Tout se change ici, et nulle part ailleurs.
+   ========================================================================== */
+
+@theme {
+  /* — Couleurs — */
+  --color-ink: #0e0e0f; /* fond */
+  --color-ink-raised: #121214; /* fond de carte, à peine détaché */
+  --color-bone: #edeae4; /* texte principal */
+  --color-ash: #9a968f; /* texte secondaire — contraste 6.5:1 sur --color-ink */
+  --color-line: #2a2a2c; /* séparateurs (décoratifs) */
+  --color-line-strong: #666468; /* bordures d'éléments interactifs — 3.3:1 */
+  --color-gold: #c8a97e; /* accent — 8.6:1 sur --color-ink */
+  --color-gold-soft: #d8bd96; /* accent au survol */
+  --color-gold-deep: #8a7351; /* accent assourdi, traits fins */
+
+  /* — Typographie — */
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  /* — Interlettrage des labels mono en capitales — */
+  --tracking-label: 0.28em;
+  --tracking-label-tight: 0.2em;
+
+  /* — Échelle fluide — */
+  --text-hero: clamp(1.75rem, 1.05rem + 3vw, 3.25rem);
+  --text-hero--line-height: 1.08;
+  --text-hero--letter-spacing: -0.03em;
+  --text-section: clamp(1.75rem, 1rem + 2.6vw, 2.75rem);
+  --text-section--line-height: 1.08;
+  --text-section--letter-spacing: -0.025em;
+
+  /* — Animations — */
+  --animate-vinyl: dxt-spin 160s linear infinite;
+}
+
+/* ==========================================================================
+   KEYFRAMES
+   ========================================================================== */
+
+@keyframes dxt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dxt-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-line);
+  }
+
+  html {
+    background-color: var(--color-ink);
+    color: var(--color-bone);
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Ancres : on laisse respirer sous le header collant */
+  :target,
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary {
+    list-style: none;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ash);
+    opacity: 1;
+  }
+
+  /* Le chevron natif du select reste visible sur fond sombre */
+  select option {
+    background-color: var(--color-ink-raised);
+    color: var(--color-bone);
+  }
+}
+
+/* ==========================================================================
+   UTILITAIRES MAISON
+   ========================================================================== */
+
+/* Apparition douce au scroll — 0 ligne de JS.
+   Par défaut l'élément est VISIBLE : l'animation n'est activée que si le
+   navigateur gère les timelines de scroll et que l'utilisateur ne demande pas
+   de réduction des animations. Aucun risque de contenu invisible. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: dxt-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
+  }
+}
+
+/* Vinyle : rotation continue, désactivée si prefers-reduced-motion */
+.vinyl-disc {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vinyl-disc {
+    animation: var(--animate-vinyl);
+  }
+}
+
+/* Soulignement doré progressif sur les liens de navigation */
+.link-underline {
+  background-image: linear-gradient(var(--color-gold), var(--color-gold));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 220ms ease;
+}
+
+.link-underline:hover,
+.link-underline:focus-visible {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-underline {
+    transition: none;
+  }
+}

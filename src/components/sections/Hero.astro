@@ -1,0 +1,57 @@
+---
+import Label from '../Label.astro';
+import Logo from '../Logo.astro';
+import Vinyl from '../Vinyl.astro';
+import Icon from '../Icon.astro';
+import { site } from '../../data/site';
+---
+
+<section id="accueil" class="relative overflow-hidden">
+  {/* Motif signature : vinyle coupé par le bord droit */}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute top-[58%] right-0 aspect-square w-[min(32rem,100vw)] -translate-y-1/2 translate-x-1/2 opacity-45 sm:top-1/2 sm:w-[min(40rem,80vw)] sm:opacity-80 lg:w-[46rem] lg:opacity-100"
+  >
+    <Vinyl />
+  </div>
+
+  <div
+    class="relative mx-auto w-full max-w-6xl px-6 pt-16 pb-24 sm:px-8 sm:pt-24 md:pt-28 md:pb-36 lg:pt-32 lg:pb-44"
+  >
+    <Label>{site.heroLabel}</Label>
+
+    <Logo size="xl" class="mt-9 sm:mt-12" />
+
+    <h1 class="mt-10 max-w-2xl font-light text-hero text-bone sm:mt-12">
+      {site.tagline}
+    </h1>
+    <p class="mt-3 max-w-2xl font-light text-hero text-ash">
+      <span class="text-gold">&amp;</span> je gère tout.
+    </p>
+
+    <p class="mt-9 max-w-md text-base leading-relaxed text-ash sm:max-w-lg sm:text-lg">
+      {site.intro}
+    </p>
+
+    <div class="mt-12 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
+      <a
+        href={site.cta.primary.href}
+        class="group inline-flex items-center justify-center gap-3 bg-gold px-7 py-4 font-mono text-[0.72rem] font-medium uppercase tracking-label-tight text-ink transition-colors hover:bg-gold-soft focus-visible:bg-gold-soft"
+      >
+        {site.cta.primary.label}
+        <Icon
+          name="arrow"
+          class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
+          strokeWidth={1.75}
+        />
+      </a>
+
+      <a
+        href={site.cta.secondary.href}
+        class="link-underline self-start py-2 font-mono text-[0.72rem] font-medium uppercase tracking-label-tight text-ash transition-colors hover:text-bone focus-visible:text-bone"
+      >
+        {site.cta.secondary.label}
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# env
+.env
+.env.production
+.env.local
+
+# plateformes
+.vercel/
+.wrangler/
+
+# divers
+.DS_Store
+*.log

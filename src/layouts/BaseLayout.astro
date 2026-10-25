@@ -1,0 +1,120 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Titre complet de la page. Par défaut : le titre du site. */
+  title?: string;
+  description?: string;
+  /** Chemin de l'image Open Graph (relatif à la racine) */
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = site.seo.title,
+  description = site.seo.description,
+  ogImage = '/og.png',
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  description: site.seo.description,
+  url: Astro.site?.href,
+  email: `mailto:${site.contact.email}`,
+  image: ogImageUrl.href,
+  logo: new URL('/favicon.svg', Astro.site).href,
+  slogan: site.tagline,
+  inLanguage: 'fr-FR',
+  areaServed: 'FR',
+  sameAs: [site.contact.instagramUrl],
+  knowsAbout: site.seo.keywords,
+};
+---
+
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#0E0E0F" />
+    <meta name="color-scheme" content="dark" />
+
+    {/* Favicons */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    {/* Polices auto-hébergées : on précharge les deux fichiers du dessus de page */}
+    <link
+      rel="preload"
+      href="/fonts/inter-tight-latin-wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.seo.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImageUrl.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content={site.seo.ogAlt} />
+
+    {/* Twitter / X */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl.href} />
+    <meta name="twitter:image:alt" content={site.seo.ogAlt} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  </head>
+
+  <body class="min-h-dvh bg-ink text-bone antialiased">
+    <a
+      href="#contenu"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:border focus:border-gold focus:bg-ink focus:px-4 focus:py-3 focus:font-mono focus:text-xs focus:uppercase focus:tracking-label-tight focus:text-gold"
+    >
+      Aller au contenu
+    </a>
+
+    <Header />
+
+    <main id="contenu">
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>

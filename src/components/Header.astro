@@ -1,0 +1,80 @@
+---
+import Logo from './Logo.astro';
+import { site } from '../data/site';
+---
+
+<header class="sticky top-0 z-50 border-b border-line bg-ink">
+  <div
+    class="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between gap-6 px-6 sm:px-8"
+  >
+    <Logo href="/" size="sm" class="shrink-0" />
+
+    {/* Navigation bureau */}
+    <nav aria-label="Navigation principale" class="hidden items-center gap-8 md:flex lg:gap-10">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class="link-underline py-1 font-mono text-[0.7rem] font-medium uppercase tracking-label-tight text-ash transition-colors hover:text-bone focus-visible:text-bone"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href={site.cta.primary.href}
+        class="border border-gold-deep px-5 py-2.5 font-mono text-[0.7rem] font-medium uppercase tracking-label-tight text-gold transition-colors hover:bg-gold hover:text-ink focus-visible:bg-gold focus-visible:text-ink"
+      >
+        Me contacter
+      </a>
+    </nav>
+
+    {/* Navigation mobile */}
+    <details class="group md:hidden" data-menu>
+      <summary
+        class="-mr-2 flex cursor-pointer items-center gap-2 px-2 py-2 font-mono text-[0.7rem] font-medium uppercase tracking-label-tight text-bone"
+      >
+        <span class="group-open:hidden">Menu</span>
+        <span class="hidden group-open:inline">Fermer</span>
+        <span aria-hidden="true" class="flex w-4 flex-col gap-[5px]">
+          <span class="h-px w-full bg-gold"></span>
+          <span class="h-px w-full bg-gold"></span>
+          <span class="h-px w-full bg-gold group-open:hidden"></span>
+        </span>
+      </summary>
+
+      <div class="absolute inset-x-0 top-full border-b border-line bg-ink">
+        <nav aria-label="Navigation mobile" class="mx-auto max-w-6xl px-6 py-4 sm:px-8">
+          <ul class="flex flex-col">
+            {
+              site.nav.map((item) => (
+                <li class="border-b border-line last:border-0">
+                  <a
+                    href={item.href}
+                    class="block py-4 font-mono text-xs font-medium uppercase tracking-label-tight text-ash transition-colors hover:text-bone"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <a
+            href={site.cta.primary.href}
+            class="mt-5 mb-2 block border border-gold-deep px-5 py-3.5 text-center font-mono text-xs font-medium uppercase tracking-label-tight text-gold"
+          >
+            {site.cta.primary.label}
+          </a>
+        </nav>
+      </div>
+    </details>
+  </div>
+</header>
+
+<script>
+  // Seul JS du site : refermer le menu mobile après un clic sur une ancre.
+  const menu = document.querySelector<HTMLDetailsElement>('details[data-menu]');
+  menu?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) menu.open = false;
+  });
+</script>

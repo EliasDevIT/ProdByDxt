@@ -1,0 +1,217 @@
+---
+/**
+ * Motif signature : un vinyle laqué.
+ *
+ * Le truc qui fait la différence : les sillons sont masqués par une "nappe de
+ * lumière" fixe. Ils ne s'allument que là où la lumière passe, et s'éteignent
+ * ailleurs — comme un vrai disque noir sous un spot. Le disque tourne, la
+ * lumière reste. Purement décoratif (aria-hidden).
+ * Rotation désactivée via `prefers-reduced-motion` (cf. global.css).
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+/** Suffixe unique : évite les collisions d'ID si le motif sert deux fois. */
+const uid = Math.random().toString(36).slice(2, 8);
+const id = (name: string) => `dxt-${name}-${uid}`;
+const url = (name: string) => `url(#${id(name)})`;
+
+const C = 300;
+const R = 296;
+const LABEL_R = 101;
+
+type Groove = { r: number; w: number; o: number };
+const grooves: Groove[] = [];
+for (let r = LABEL_R + 8; r <= R - 9; r += 2.9) {
+  const i = grooves.length;
+  const major = i % 9 === 0;
+  grooves.push({
+    r: Number(r.toFixed(2)),
+    w: major ? 1.15 : 0.6,
+    o: major ? 0.95 : 0.55,
+  });
+}
+---
+
+<svg
+  viewBox="0 0 600 600"
+  class:list={['h-full w-full', className]}
+  aria-hidden="true"
+  focusable="false"
+  role="presentation"
+>
+  <defs>
+    <clipPath id={id('clip')}>
+      <circle cx={C} cy={C} r={R}></circle>
+    </clipPath>
+
+    {/* Laque du disque : claire en haut à gauche, profonde sur les bords */}
+    <radialGradient id={id('base')} cx="40%" cy="30%" r="76%">
+      <stop offset="0%" stop-color="#232329"></stop>
+      <stop offset="42%" stop-color="#17171c"></stop>
+      <stop offset="100%" stop-color="#0a0a0b"></stop>
+    </radialGradient>
+
+    {/* Nappes de lumière utilisées par le masque des sillons */}
+    <radialGradient id={id('beam')} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"></stop>
+      <stop offset="48%" stop-color="#ffffff" stop-opacity="0.5"></stop>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id={id('beam-soft')} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"></stop>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
+    </radialGradient>
+
+    <mask id={id('light')} maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="600">
+      {/* Niveau de base : les sillons restent devinables partout */}
+      <circle cx={C} cy={C} r={R} fill="#262626"></circle>
+      {/* Faisceau principal */}
+      <ellipse
+        cx={C}
+        cy={C}
+        rx="350"
+        ry="118"
+        fill={url('beam')}
+        transform="rotate(-34 300 300)"></ellipse>
+      {/* Faisceau secondaire, plus serré */}
+      <ellipse
+        cx={C}
+        cy={C}
+        rx="320"
+        ry="44"
+        fill={url('beam-soft')}
+        transform="rotate(46 300 300)"></ellipse>
+      {/* Éclat franc en haut à gauche */}
+      <ellipse
+        cx="208"
+        cy="168"
+        rx="150"
+        ry="62"
+        fill={url('beam')}
+        transform="rotate(-38 208 168)"></ellipse>
+    </mask>
+
+    {/* Reflets posés par-dessus la laque */}
+    <radialGradient id={id('sheen')} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#edeae4" stop-opacity="0.12"></stop>
+      <stop offset="45%" stop-color="#edeae4" stop-opacity="0.045"></stop>
+      <stop offset="100%" stop-color="#edeae4" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id={id('sheen-gold')} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c8a97e" stop-opacity="0.14"></stop>
+      <stop offset="100%" stop-color="#c8a97e" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id={id('specular')} cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"></stop>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.03"></stop>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
+    </radialGradient>
+
+    {/* Tranche du disque qui accroche la lumière */}
+    <linearGradient id={id('rim')} x1="16%" y1="0%" x2="84%" y2="100%">
+      <stop offset="0%" stop-color="#edeae4" stop-opacity="0.45"></stop>
+      <stop offset="34%" stop-color="#edeae4" stop-opacity="0.06"></stop>
+      <stop offset="66%" stop-color="#c8a97e" stop-opacity="0.26"></stop>
+      <stop offset="100%" stop-color="#edeae4" stop-opacity="0.03"></stop>
+    </linearGradient>
+
+    {/* Label central */}
+    <radialGradient id={id('label')} cx="36%" cy="28%" r="86%">
+      <stop offset="0%" stop-color="#2a2a32"></stop>
+      <stop offset="62%" stop-color="#17171c"></stop>
+      <stop offset="100%" stop-color="#0f0f12"></stop>
+    </radialGradient>
+    <radialGradient id={id('spindle')} cx="34%" cy="28%" r="86%">
+      <stop offset="0%" stop-color="#34343d"></stop>
+      <stop offset="100%" stop-color="#131317"></stop>
+    </radialGradient>
+    {/* Ombre portée du label sur la laque */}
+    <radialGradient id={id('label-shadow')} cx="50%" cy="50%" r="50%">
+      <stop offset="78%" stop-color="#000000" stop-opacity="0"></stop>
+      <stop offset="92%" stop-color="#000000" stop-opacity="0.42"></stop>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+
+  {/* 1. La laque, fixe */}
+  <circle cx={C} cy={C} r={R} fill={url('base')}></circle>
+
+  {/* 2. Les sillons : ils tournent, mais la lumière qui les révèle reste fixe */}
+  <g mask={`url(#${id('light')})`}>
+    <g class="vinyl-disc" clip-path={url('clip')}>
+      {
+        grooves.map((g) => (
+          <circle
+            cx={C}
+            cy={C}
+            r={g.r}
+            fill="none"
+            stroke="#b4b0a8"
+            stroke-width={g.w}
+            stroke-opacity={g.o}
+          />
+        ))
+      }
+      {/* Signature du logo : la croix */}
+      <path
+        d="M300 2v298M300 300v298M2 300h298M300 300h298"
+        fill="none"
+        stroke="#0a0a0b"
+        stroke-width="4.5"></path>
+    </g>
+  </g>
+
+  {/* 3. Reflets de surface, fixes */}
+  <g clip-path={url('clip')}>
+    <ellipse
+      cx={C}
+      cy={C}
+      rx="340"
+      ry="100"
+      fill={url('sheen')}
+      transform="rotate(-34 300 300)"></ellipse>
+    <ellipse
+      cx={C}
+      cy={C}
+      rx="312"
+      ry="34"
+      fill={url('sheen-gold')}
+      transform="rotate(46 300 300)"></ellipse>
+    <ellipse
+      cx="206"
+      cy="166"
+      rx="118"
+      ry="46"
+      fill={url('specular')}
+      transform="rotate(-38 206 166)"></ellipse>
+  </g>
+
+  {/* 4. Label central, fixe (un disque circulaire ne montre pas sa rotation) */}
+  <circle cx={C} cy={C} r={LABEL_R + 14} fill={url('label-shadow')}></circle>
+  <circle cx={C} cy={C} r={LABEL_R} fill={url('label')}></circle>
+  <circle
+    cx={C}
+    cy={C}
+    r={LABEL_R}
+    fill="none"
+    stroke="#c8a97e"
+    stroke-opacity="0.35"
+    stroke-width="1.1"></circle>
+  <circle
+    cx={C}
+    cy={C}
+    r={LABEL_R - 8}
+    fill="none"
+    stroke="#c8a97e"
+    stroke-opacity="0.12"
+    stroke-width="0.6"></circle>
+  <circle cx={C} cy={C} r="37" fill={url('spindle')}></circle>
+  <circle cx={C} cy={C} r="5" fill="#08080a"></circle>
+
+  {/* 5. La tranche */}
+  <circle cx={C} cy={C} r={R} fill="none" stroke={url('rim')} stroke-width="1.6"></circle>
+</svg>

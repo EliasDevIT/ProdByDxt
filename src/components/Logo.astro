@@ -1,0 +1,43 @@
+---
+import { site } from '../data/site';
+
+interface Props {
+  /** sm = header/footer, xl = hero */
+  size?: 'sm' | 'md' | 'xl';
+  /** Rendu en lien vers l'accueil */
+  href?: string;
+  class?: string;
+}
+
+const { size = 'sm', href, class: className } = Astro.props;
+
+const sizes = {
+  sm: { kicker: 'text-[0.52rem] tracking-label', word: 'text-xl', gap: 'mb-0.5' },
+  md: { kicker: 'text-[0.6rem] tracking-label', word: 'text-3xl', gap: 'mb-1' },
+  xl: {
+    kicker: 'text-[0.7rem] sm:text-[0.85rem] tracking-label',
+    word: 'text-[clamp(3rem,2rem+6vw,6.5rem)]',
+    gap: 'mb-1 sm:mb-2',
+  },
+} as const;
+
+const s = sizes[size];
+const Tag = href ? 'a' : 'div';
+const accessibleName = `${site.logo.kicker} ${site.logo.word}`;
+---
+
+<Tag
+  {...href ? { href } : { role: 'img' }}
+  aria-label={accessibleName}
+  class:list={['group inline-flex flex-col leading-none', className]}
+>
+  <span
+    aria-hidden="true"
+    class:list={['font-mono font-medium uppercase text-gold', s.kicker, s.gap]}>{site.logo.kicker}</span
+  >
+  <span
+    aria-hidden="true"
+    class:list={['font-sans font-extrabold tracking-[-0.045em] text-bone', s.word]}
+    >{site.logo.word}<span class="text-gold">{site.logo.dot}</span></span
+  >
+</Tag>

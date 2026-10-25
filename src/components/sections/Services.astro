@@ -1,0 +1,31 @@
+---
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import { services } from '../../data/services';
+---
+
+<Section
+  id="services"
+  label="Services"
+  title="Ce que je construis pour toi."
+  intro="Du site d'une page à l'app complète. Tu prends ce dont t'as besoin, maintenant ou plus tard."
+>
+  <ul class="reveal grid grid-cols-1 gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
+    {
+      services.map((service) => (
+        <li class="group relative bg-ink p-8 transition-colors duration-300 hover:bg-ink-raised sm:p-9 lg:p-10">
+          <span
+            aria-hidden="true"
+            class="absolute inset-x-0 top-0 h-px scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100"
+          />
+          <Icon
+            name={service.icon}
+            class="h-7 w-7 text-gold transition-colors duration-300 group-hover:text-gold-soft"
+          />
+          <h3 class="mt-7 text-lg font-medium tracking-tight text-bone">{service.title}</h3>
+          <p class="mt-3.5 text-sm leading-relaxed text-ash">{service.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

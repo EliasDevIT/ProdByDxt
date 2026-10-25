@@ -1,0 +1,66 @@
+---
+import Logo from './Logo.astro';
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-14 sm:px-8 md:flex-row md:items-end md:justify-between md:py-16"
+  >
+    <div>
+      <Logo size="md" href="/" />
+      <p class="mt-5 max-w-xs text-sm leading-relaxed text-ash">
+        {site.tagline}<br />
+        <span class="text-gold">&amp;</span> je gère tout.
+      </p>
+    </div>
+
+    <nav aria-label="Navigation de bas de page" class="md:text-right">
+      <ul class="flex flex-wrap gap-x-7 gap-y-3">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="link-underline font-mono text-[0.7rem] font-medium uppercase tracking-label-tight text-ash transition-colors hover:text-bone"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <ul class="mt-6 flex flex-wrap gap-x-7 gap-y-3">
+        <li>
+          <a
+            href={`mailto:${site.contact.email}`}
+            class="link-underline text-sm text-ash transition-colors hover:text-bone"
+            >{site.contact.email}</a
+          >
+        </li>
+        <li>
+          <a
+            href={site.contact.instagramUrl}
+            rel="me noopener"
+            target="_blank"
+            class="link-underline text-sm text-ash transition-colors hover:text-bone"
+            >Instagram {site.contact.instagramHandle}</a
+          >
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="border-t border-line">
+    <div
+      class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-6 text-xs text-ash sm:flex-row sm:items-center sm:justify-between sm:px-8"
+    >
+      <p>© {year} {site.name}. Tous droits réservés.</p>
+      <p class="font-mono text-[0.65rem] uppercase tracking-label-tight">
+        Conçu &amp; codé maison
+      </p>
+    </div>
+  </div>
+</footer>

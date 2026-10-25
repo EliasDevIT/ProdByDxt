@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Label from '../components/Label.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title={site.seo.titleTemplate.replace('%s', 'Page introuvable')}
+  description="Cette page n'existe pas ou a été déplacée."
+  noindex
+>
+  <section class="mx-auto w-full max-w-6xl px-6 py-28 sm:px-8 md:py-40">
+    <Label>Erreur 404</Label>
+    <h1 class="mt-7 max-w-xl font-light text-hero text-bone">
+      Cette page n'existe pas<span class="text-gold">.</span>
+    </h1>
+    <p class="mt-6 max-w-md text-base leading-relaxed text-ash">
+      Mauvais lien, page supprimée ou faute de frappe. Reviens à l'accueil, tout y est.
+    </p>
+    <a
+      href="/"
+      class="group mt-12 inline-flex items-center gap-3 border border-gold-deep px-7 py-4 font-mono text-[0.72rem] font-medium uppercase tracking-label-tight text-gold transition-colors hover:bg-gold hover:text-ink focus-visible:bg-gold focus-visible:text-ink"
+    >
+      Retour à l'accueil
+      <Icon
+        name="arrow"
+        class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
+        strokeWidth={1.75}
+      />
+    </a>
+  </section>
+</BaseLayout>
