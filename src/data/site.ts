@@ -22,7 +22,7 @@ export const site = {
     "Développeur freelance. Je conçois et je code les sites, les apps et les outils des artistes et de leurs équipes. Tu fais la musique, je m'occupe du reste.",
 
   /** Label mono au-dessus du logo dans le hero */
-  heroLabel: 'Dev freelance · Rap & musique',
+  heroLabel: 'DevOps freelance · Rap & musique',
 
   cta: {
     primary: { label: 'Parlons de ton projet', href: '/#contact' },
