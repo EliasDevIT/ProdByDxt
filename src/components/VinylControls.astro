@@ -1,0 +1,207 @@
+---
+import Icon from './Icon.astro';
+import { tracks, playerCopy } from '../data/tracks';
+
+/**
+ * Le contrôle officiel du lecteur : un vrai <button>, atteignable au clavier,
+ * annoncé correctement. Il pilote le grand vinyle de VinylStage.
+ *
+ * Tout le JS du lecteur vit ici. C'est le seul script de la page avec la
+ * fermeture du menu mobile.
+ */
+const first = tracks[0];
+const multiple = tracks.length > 1;
+---
+
+{
+  first && (
+    <div
+      data-vinyl-player
+      class="mt-11 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6 sm:mt-14"
+    >
+      <button
+        type="button"
+        data-vinyl-toggle
+        aria-pressed="false"
+        aria-label={playerCopy.ariaPlay}
+        class="group inline-flex items-center gap-3.5 py-1 font-mono text-[0.68rem] font-medium uppercase tracking-label-tight text-gold transition-colors hover:text-gold-soft focus-visible:text-gold-soft"
+      >
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-deep transition-colors group-hover:border-gold">
+          <Icon name="play" class="vinyl-icon-play ml-px h-3.5 w-3.5" strokeWidth={1.5} />
+          <Icon name="pause" class="vinyl-icon-pause hidden h-3.5 w-3.5" strokeWidth={1.5} />
+        </span>
+        <span data-vinyl-action>{playerCopy.idle}</span>
+      </button>
+
+      <p class="text-sm text-ash">
+        <span data-vinyl-now>
+          {first.artist} — {first.title}
+        </span>
+      </p>
+
+      {multiple && (
+        <button
+          type="button"
+          data-vinyl-next
+          class="link-underline font-mono text-[0.62rem] font-medium uppercase tracking-label-tight text-ash transition-colors hover:text-bone focus-visible:text-bone"
+        >
+          {playerCopy.next}
+        </button>
+      )}
+    </div>
+  )
+}
+
+<script>
+  import { tracks, playerCopy } from '../data/tracks';
+  import type { Track } from '../data/tracks';
+
+  const player = document.querySelector<HTMLElement>('[data-vinyl-player]');
+
+  if (player) {
+    const stage = document.querySelector<HTMLElement>('[data-vinyl-stage]');
+    const discButton = document.querySelector<HTMLButtonElement>('[data-vinyl-disc]');
+    const toggle = player.querySelector<HTMLButtonElement>('[data-vinyl-toggle]');
+    const action = player.querySelector<HTMLElement>('[data-vinyl-action]');
+    const now = player.querySelector<HTMLElement>('[data-vinyl-now]');
+    const nextButton = player.querySelector<HTMLButtonElement>('[data-vinyl-next]');
+    const cover = document.querySelector<SVGImageElement>('.vinyl-cover');
+
+    let index = 0;
+    let audio: HTMLAudioElement | null = null;
+    let context: AudioContext | null = null;
+    let state: 'idle' | 'loading' | 'playing' | 'error' = 'idle';
+
+    const current = () => tracks[index]!;
+
+    /**
+     * Le craquement du sillon, synthétisé à la volée : du bruit filtré plus
+     * quelques pops aléatoires. Évite d'embarquer un fichier de plus — et la
+     * question de sa licence.
+     */
+    function crackle(ctx: AudioContext) {
+      const duration = 1.8;
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duration), ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < data.length; i += 1) {
+        let value = (Math.random() * 2 - 1) * 0.05;
+        if (Math.random() < 0.0015) value += (Math.random() * 2 - 1) * 0.6;
+        data[i] = value;
+      }
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = 'highpass';
+      highpass.frequency.value = 1100;
+
+      const gain = ctx.createGain();
+      const t = ctx.currentTime;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.85, t + 0.1);
+      gain.gain.setValueAtTime(0.85, t + 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      source.connect(highpass).connect(gain).connect(ctx.destination);
+      source.start();
+      source.stop(t + duration);
+    }
+
+    function render() {
+      const playing = state === 'playing';
+      const track = current();
+
+      player!.classList.toggle('is-playing', playing);
+      stage?.classList.toggle('is-playing', playing);
+
+      toggle?.setAttribute('aria-pressed', String(playing));
+      toggle?.setAttribute('aria-label', playing ? playerCopy.ariaPause : playerCopy.ariaPlay);
+
+      if (action) {
+        action.textContent =
+          state === 'loading'
+            ? playerCopy.loading
+            : state === 'error'
+              ? playerCopy.error
+              : playing
+                ? playerCopy.playing
+                : playerCopy.idle;
+      }
+
+      if (now) now.textContent = `${track.artist} — ${track.title}`;
+
+      if (cover) {
+        if (playing && track.cover) cover.setAttribute('href', track.cover.src);
+        else cover.removeAttribute('href');
+      }
+    }
+
+    function load(track: Track) {
+      audio?.pause();
+      audio = new Audio();
+      audio.preload = 'none';
+      audio.src = track.src;
+      audio.volume = 0.35;
+      audio.addEventListener('ended', stop);
+      audio.addEventListener('error', () => {
+        state = 'error';
+        render();
+      });
+      return audio;
+    }
+
+    async function play() {
+      const track = current();
+      const element = audio && audio.src.endsWith(track.src) ? audio : load(track);
+
+      state = 'loading';
+      render();
+
+      try {
+        context = context ?? new AudioContext();
+        if (context.state === 'suspended') await context.resume();
+        crackle(context);
+        await element.play();
+        state = 'playing';
+      } catch {
+        // Lecture refusée ou fichier introuvable : on le dit, on ne casse rien.
+        state = 'error';
+      }
+
+      render();
+    }
+
+    function stop() {
+      audio?.pause();
+      if (audio) audio.currentTime = 0;
+      state = 'idle';
+      render();
+    }
+
+    function togglePlayback() {
+      if (state === 'playing') stop();
+      else void play();
+    }
+
+    toggle?.addEventListener('click', togglePlayback);
+    discButton?.addEventListener('click', togglePlayback);
+
+    nextButton?.addEventListener('click', () => {
+      index = (index + 1) % tracks.length;
+      const wasPlaying = state === 'playing';
+      stop();
+      audio = null;
+      if (wasPlaying) void play();
+      else render();
+    });
+
+    // Un son qui continue dans un onglet qu'on a quitté, c'est pénible.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && state === 'playing') stop();
+    });
+
+    render();
+  }
+</script>

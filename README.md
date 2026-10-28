@@ -26,6 +26,7 @@ npm run dev      # http://localhost:4321
 | `npm run preview`     | Sert le `dist/` en local, comme en production                       |
 | `npm run check`       | Vérification TypeScript / Astro seule                               |
 | `npm run assets`      | Régénère `public/fonts`, `favicon.svg`, `og.png`, icônes            |
+| `npm run audio`       | Découpe un MP3 en extrait web pour le vinyle (voir plus bas)        |
 | `npm run build:nocheck` | Build sans la vérification — dépannage uniquement                 |
 
 `npm run assets` n'est **pas** dans le build : les fichiers générés sont versionnés
@@ -45,6 +46,7 @@ Tout le contenu éditable est dans `src/data/`. Aucun besoin de toucher aux comp
 | `src/data/process.ts`   | Les 4 étapes du process                                                |
 | `src/data/projects.ts`  | Les projets (3 emplacements « à venir » prêts à remplacer)             |
 | `src/data/contact.ts`   | Textes et champs du formulaire                                         |
+| `src/data/tracks.ts`    | Les extraits audio du vinyle (artiste, titre, pochette)                |
 | `src/data/legal.ts`     | Mentions légales — **en sommeil**, voir plus bas                       |
 
 Les couleurs, les polices et l'échelle typographique sont des tokens, tous regroupés
@@ -227,6 +229,68 @@ sans aucun gain.
       et soumettre `/sitemap-index.xml`
 - [ ] Vérifier l'aperçu de partage sur
       [opengraph.xyz](https://www.opengraph.xyz) (Instagram, WhatsApp, X…)
+
+---
+
+## Le vinyle sonore
+
+Le disque du hero est un lecteur. Au clic — ou au tap — le bras se pose, on entend
+un craquement de sillon, puis l'extrait démarre. La pochette de l'artiste vient
+remplacer le label doré et le disque accélère.
+
+**Pourquoi au clic et pas au survol :** les navigateurs refusent de jouer un son
+sans geste de l'utilisateur, et un survol n'en est pas un. Le son serait resté
+muet une fois sur deux. Et le survol n'existe pas sur mobile, d'où viendra
+l'essentiel du trafic.
+
+Sur grand écran, le disque lui-même est cliquable. En dessous de `lg`, il repasse
+en décor derrière le texte : le vrai bouton est la barre sous les boutons d'appel
+à l'action, présente à toutes les tailles. C'est elle qui est annoncée aux lecteurs
+d'écran et atteignable au clavier.
+
+### Ajouter un artiste
+
+```bash
+# 1. découper l'extrait : source, nom de sortie, seconde de début, durée
+npm run audio -- "C:/chemin/vers/morceau.mp3" nom-artiste-titre 20 25
+```
+
+Le script sort un MP3 mono à 96 kbps avec fondus, autour de 300 Ko pour 25
+secondes. Il utilise `ffmpeg-static` : rien à installer sur la machine.
+
+```bash
+# 2. la pochette (facultative) — carrée, 400x400 suffit
+#    public/artistes/nom-artiste.jpg
+```
+
+```ts
+// 3. l'entrée dans src/data/tracks.ts
+{
+  id: 'nom-artiste-titre',
+  artist: 'NOM',
+  title: 'TITRE',
+  src: '/audio/nom-artiste-titre.mp3',
+  cover: { src: '/artistes/nom-artiste.jpg', alt: 'Pochette de TITRE par NOM' },
+}
+```
+
+Dès qu'il y a plus d'un morceau, un bouton « Artiste suivant » apparaît tout seul.
+Sans pochette, le label doré reste en place : rien ne casse.
+
+### Ce qui garde le site rapide
+
+L'audio est en `preload="none"` : aucun octet n'est téléchargé tant que personne
+ne clique. Un visiteur qui ne touche pas au disque ne paie rien. Lighthouse reste
+à 100 en performance, desktop comme mobile.
+
+Le craquement n'est pas un fichier : il est synthétisé à la volée avec l'API Web
+Audio, du bruit filtré avec quelques pops. Zéro téléchargement, zéro licence.
+
+### Droits
+
+**Ne mets dans `tracks.ts` que des morceaux pour lesquels tu as l'accord écrit de
+l'artiste ou de son label.** Un extrait de 25 secondes reste une diffusion
+publique dès que le site est en ligne, et le site est commercial.
 
 ---
 

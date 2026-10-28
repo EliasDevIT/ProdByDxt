@@ -1,0 +1,53 @@
+---
+import Vinyl from './Vinyl.astro';
+
+/**
+ * Le grand vinyle du hero, coupé par le bord droit.
+ *
+ * Sur grand écran il est cliquable : c'est un raccourci à la souris, pas le
+ * contrôle officiel. Le vrai bouton — celui qui est annoncé aux lecteurs
+ * d'écran et atteignable au clavier — est dans VinylControls.
+ * D'où le `tabindex="-1"` + `aria-hidden` : on ne duplique pas la commande
+ * dans l'arbre d'accessibilité.
+ *
+ * En dessous de `lg`, le disque passe derrière le texte et redevient un simple
+ * décor (`pointer-events-none`) : à cette taille il est trop pâle et trop
+ * couvert pour servir de cible tactile.
+ */
+interface Props {
+  class?: string;
+  /** false = pas de morceau configuré, on retombe sur le motif décoratif */
+  interactive?: boolean;
+}
+
+const { class: className, interactive = true } = Astro.props;
+
+/**
+ * `lg:z-20` fait passer le disque au-dessus du conteneur de texte du hero.
+ * Celui-ci est large et vide sur sa droite, mais il interceptait tous les clics.
+ * On ne le fait qu'à partir de `lg` : en dessous, le disque doit rester DERRIÈRE
+ * le texte, sinon il le recouvrirait.
+ */
+const wrapper =
+  'pointer-events-none absolute top-[58%] right-0 aspect-square w-[min(32rem,100vw)] -translate-y-1/2 translate-x-1/2 opacity-45 sm:top-1/2 sm:w-[min(40rem,80vw)] sm:opacity-80 lg:z-20 lg:w-[46rem] lg:opacity-100';
+---
+
+{
+  interactive ? (
+    <div class:list={[wrapper, className]} data-vinyl-stage>
+      <button
+        type="button"
+        tabindex="-1"
+        aria-hidden="true"
+        data-vinyl-disc
+        class="vinyl-trigger block h-full w-full cursor-pointer lg:pointer-events-auto lg:[clip-path:circle(50%)]"
+      >
+        <Vinyl interactive />
+      </button>
+    </div>
+  ) : (
+    <div aria-hidden="true" class:list={[wrapper, className]}>
+      <Vinyl />
+    </div>
+  )
+}

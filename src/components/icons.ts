@@ -28,6 +28,8 @@ export const icons = {
     'M17 7.05h.01',
   ],
   arrow: ['M4.5 12h15', 'm13.25 5.75 6.25 6.25-6.25 6.25'],
+  play: ['M9.25 7.15 16.5 12l-7.25 4.85Z'],
+  pause: ['M10 7.5v9', 'M14 7.5v9'],
 } as const;
 
 export type IconName = keyof typeof icons;

@@ -1,19 +1,16 @@
 ---
 import Label from '../Label.astro';
 import Logo from '../Logo.astro';
-import Vinyl from '../Vinyl.astro';
+import VinylStage from '../VinylStage.astro';
+import VinylControls from '../VinylControls.astro';
 import Icon from '../Icon.astro';
 import { site } from '../../data/site';
+import { tracks } from '../../data/tracks';
 ---
 
 <section id="accueil" class="relative overflow-hidden">
-  {/* Motif signature : vinyle coupé par le bord droit */}
-  <div
-    aria-hidden="true"
-    class="pointer-events-none absolute top-[58%] right-0 aspect-square w-[min(32rem,100vw)] -translate-y-1/2 translate-x-1/2 opacity-45 sm:top-1/2 sm:w-[min(40rem,80vw)] sm:opacity-80 lg:w-[46rem] lg:opacity-100"
-  >
-    <Vinyl />
-  </div>
+  {/* Motif signature : vinyle coupé par le bord droit, cliquable sur grand écran */}
+  <VinylStage interactive={tracks.length > 0} />
 
   <div
     class="relative mx-auto w-full max-w-6xl px-6 pt-16 pb-24 sm:px-8 sm:pt-24 md:pt-28 md:pb-36 lg:pt-32 lg:pb-44"
@@ -53,5 +50,7 @@ import { site } from '../../data/site';
         {site.cta.secondary.label}
       </a>
     </div>
+
+    <VinylControls />
   </div>
 </section>
