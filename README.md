@@ -277,6 +277,10 @@ secondes. Il utilise `ffmpeg-static` : rien à installer sur la machine.
 Dès qu'il y a plus d'un morceau, un bouton « Artiste suivant » apparaît tout seul.
 Sans pochette, le label doré reste en place : rien ne casse.
 
+**Le morceau est tiré au sort** à chaque lecture, et jamais le même deux fois
+d'affilée. Au repos, rien n'indique lequel va sortir : le nom de l'artiste
+n'apparaît qu'une fois le son lancé, et disparaît à l'arrêt.
+
 ### Ce qui garde le site rapide
 
 L'audio est en `preload="none"` : aucun octet n'est téléchargé tant que personne
