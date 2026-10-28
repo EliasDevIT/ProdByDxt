@@ -45,10 +45,17 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: 'slot-1',
-    status: 'soon',
-    title: 'Projet à venir',
-    category: 'Site vitrine',
+    id: 'mazzagence',
+    status: 'live',
+    title: 'Mazzagence',
+    category: "Site d'agence · pour JAMSO",
+    url: 'https://mazzagence.com/',
+    image: {
+      src: '/projets/mazzagence.jpg',
+      alt: "Page d'accueil du site Mazzagence : logo doré sur fond noir et les six pôles de l'agence",
+      width: 1200,
+      height: 900,
+    },
   },
   {
     id: 'slot-2',
@@ -64,6 +71,6 @@ export const projects: Project[] = [
   },
 ];
 
-/** Texte affiché dans la section quand aucun projet n'est encore publié. */
+/** Texte d'introduction de la section. */
 export const projectsIntro =
-  "Les premières réalisations arrivent. En attendant, le meilleur moyen de voir ce que je sais faire, c'est de m'envoyer ton projet.";
+  "Une première mise en ligne, d'autres suivent. Le plus rapide pour savoir ce que je peux faire pour toi, c'est encore de m'envoyer ton projet.";
