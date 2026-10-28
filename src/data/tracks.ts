@@ -38,7 +38,7 @@ export const tracks: Track[] = [
     artist: 'JAMSO',
     title: 'CRACK MAP',
     src: '/audio/jamso-crack-map.mp3',
-    // cover: { src: '/artistes/jamso.jpg', alt: 'Pochette de CRACK MAP par JAMSO' },
+    cover: { src: '/artistes/jamso.jpg', alt: 'Portrait de JAMSO' },
   },
 ];
 
