@@ -1,7 +1,7 @@
 {
   "name": "Prod by Dxt",
   "short_name": "Dxt",
-  "description": "Le tech de vos rappeurs préférés.",
+  "description": "Le Dev de vos rappeurs préférés.",
   "lang": "fr",
   "start_url": "/",
   "display": "standalone",

@@ -243,7 +243,7 @@ function ogTree() {
           }),
           text(
             { fontWeight: 300, fontSize: 40, letterSpacing: -1, color: COLORS.bone },
-            'Le tech de vos rappeurs préférés.'
+            'Le Dev de vos rappeurs préférés.'
           ),
           h('div', { display: 'flex', marginTop: 10 }, [
             text({ fontWeight: 300, fontSize: 40, letterSpacing: -1, color: COLORS.gold }, '&'),

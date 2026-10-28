@@ -14,7 +14,7 @@ export const site = {
     dot: '.',
   },
 
-  tagline: 'Le tech de vos rappeurs préférés.',
+  tagline: 'Le Dev de vos rappeurs préférés.',
   subTagline: '& je gère tout.',
 
   /** Une phrase sous le hero */
@@ -47,11 +47,11 @@ export const site = {
   ],
 
   seo: {
-    title: 'Prod by Dxt — Le tech de vos rappeurs préférés',
+    title: 'Prod by Dxt — Le Dev de vos rappeurs préférés',
     titleTemplate: '%s — Prod by Dxt',
     description:
       "Développeur freelance pour artistes et rappeurs : site vitrine, app communauté, boutique merch, landing de sortie, automatisation et maintenance. Tu fais la musique, je gère la technique.",
-    ogAlt: 'Prod by Dxt — Le tech de vos rappeurs préférés',
+    ogAlt: 'Prod by Dxt — Le Dev de vos rappeurs préférés',
     locale: 'fr_FR',
     keywords: [
       'développeur freelance artiste',

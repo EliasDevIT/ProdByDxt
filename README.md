@@ -1,6 +1,6 @@
 # Prod by Dxt — site vitrine
 
-> Le tech de vos rappeurs préférés. **&** je gère tout.
+> Le Dev de vos rappeurs préférés. **&** je gère tout.
 
 Site vitrine statique : une page avec ancres, une 404.
 Pas de backend, pas de base de données, pas de cookie.
